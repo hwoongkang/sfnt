@@ -13,7 +13,7 @@ enum DirectoryEntryType {
     Woff,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct SfntDirectoryEntry {
     tag: [u8; 4],
     check_sum: u32,
@@ -23,6 +23,7 @@ struct SfntDirectoryEntry {
 pub struct SFNTReader {
     directory_entry_type: DirectoryEntryType,
     tables: HashMap<[u8; 4], SfntDirectoryEntry>,
+    ordered_tables: Vec<([u8; 4], SfntDirectoryEntry)>,
 }
 
 impl SFNTReader {
@@ -36,6 +37,8 @@ impl SFNTReader {
         let mut directory_entry_type = DirectoryEntryType::Sfnt;
 
         let mut tables = HashMap::new();
+
+        let mut ordered_tables = Vec::new();
 
         match &sfnt_version {
             b"ttcf" => {
@@ -64,13 +67,18 @@ impl SFNTReader {
                     let table = Self::get_sfnt_directory(directory_entry_type, &mut file)?;
                     tables.insert(table.tag, table);
                 }
-                // Todo: Python 버전에서는 tables를 table.offset으로 정렬해서 사용함.
+
+                // Python 버전에서는 tables를 table.offset으로 정렬해서 사용함.
+                let mut table_entries = tables.clone().into_iter().collect::<Vec<_>>();
+                table_entries.sort_by_key(|x| x.1.offset);
+                ordered_tables = table_entries;
             }
         }
 
         Ok(Self {
             directory_entry_type,
             tables,
+            ordered_tables,
         })
     }
 
