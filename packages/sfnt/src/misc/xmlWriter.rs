@@ -1,4 +1,4 @@
-use std::{io::Write, collections::HashMap};
+use std::{collections::HashMap, io::Write};
 
 const INDENT: &str = "  ";
 
@@ -20,12 +20,12 @@ impl XMLWriter {
     ) -> std::io::Result<Self> {
         let mut file: std::fs::File = std::fs::File::create(file_or_path)?;
         let indentwhite = INDENT.to_owned(); //indent_white.unwrap_or(INDENT).to_owned();
-        //let binding = String::from("\n");
+                                             //let binding = String::from("\n");
         let newlinestr = "\n"; //newline_str.unwrap_or(binding.as_str());
         let mut writer = Self {
-            file, 
-            indentwhite, 
-            newlinestr: newlinestr.to_string(), 
+            file,
+            indentwhite,
+            newlinestr: newlinestr.to_string(),
             indentlevel: 0,
             stack: Vec::new(),
         };
@@ -42,7 +42,7 @@ impl XMLWriter {
         self._writeraw(string, indent);
     }
 
-    pub fn write_cdata(&mut self, string: &str){
+    pub fn write_cdata(&mut self, string: &str) {
         self._writeraw("<![CDATA[", true);
         self._writeraw(string, false);
         self._writeraw("]]>", false);
@@ -75,26 +75,26 @@ impl XMLWriter {
 
         for (key, value) in value.iter() {
             self._writeraw(" ", false);
-            self._writeraw(key ,false);
-            self._writeraw("=\"",false);
-            self._writeraw(value,false);
-            self._writeraw("\"",false);
+            self._writeraw(key, false);
+            self._writeraw("=\"", false);
+            self._writeraw(value, false);
+            self._writeraw("\"", false);
         }
         self._writeraw("/>", false);
     }
 
     pub fn begintag(&mut self, name: &str, value: &HashMap<&str, &str>) {
         self._writeraw("<", true);
-        self._writeraw(name,false);
+        self._writeraw(name, false);
 
         for (key, value) in value.iter() {
-            self._writeraw(" ",false);
-            self._writeraw(key,false);
-            self._writeraw("=\"",false);
-            self._writeraw(value,false);
-            self._writeraw("\"",false);
+            self._writeraw(" ", false);
+            self._writeraw(key, false);
+            self._writeraw("=\"", false);
+            self._writeraw(value, false);
+            self._writeraw("\"", false);
         }
-        self._writeraw(">",false);
+        self._writeraw(">", false);
         self.stack.push(name.to_string());
         self.indent();
     }
@@ -103,16 +103,16 @@ impl XMLWriter {
         self.dedent();
         let name = self.stack.pop().unwrap();
         self._writeraw("</", true);
-        self._writeraw(name.as_str(),false);
-        self._writeraw(">",false);
+        self._writeraw(name.as_str(), false);
+        self._writeraw(">", false);
     }
 
     fn escape(&mut self, string: &str) -> String {
         string
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\r", "&#13;")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\r", "&#13;")
     }
 
     pub fn comment(&mut self, data: &str) {
@@ -127,5 +127,4 @@ impl XMLWriter {
         });
         self._writeraw(" -->", true);
     }
-
 }
