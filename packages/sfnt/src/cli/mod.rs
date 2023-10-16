@@ -6,9 +6,12 @@ use std::fs::File;
 use std::io::Read;
 
 pub fn run() -> Result<(), String> {
-    let Some(input_path) = std::env::args().nth(1) else {
-		return Err(format!("Usage: {} [string]", file!()))
-	};
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 3 {
+        return Err(format!("Usage: {} [input_path] [output_path]", file!()));
+    }
+    let input_path = &args[1];
+    let output_path = &args[2];
     let Ok(mut file_handle) = File::open(&input_path) else {
 		return Err(format!("Error opening file: {}", input_path))
 	};
@@ -20,7 +23,7 @@ pub fn run() -> Result<(), String> {
     match file_type {
         FileType::OTF | FileType::TTC | FileType::TTF | FileType::WOFF | FileType::WOFF2 => {
             // TODO: output path file options should be parsed
-            match tt_dump(&input_path, "") {
+            match tt_dump(&input_path, output_path) {
                 Ok(_) => Ok(()),
                 Err(_) => Err(format!("Error dumping file: {}", input_path)),
             }
